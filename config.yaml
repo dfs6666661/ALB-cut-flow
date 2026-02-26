@@ -1,0 +1,72 @@
+app:
+  host: "0.0.0.0"
+  port: 9527
+  debug: false
+  secret_key: "4f7b1e8a-3f0d-4e9b-a9d2-2f4c8e1c7a55"
+
+auth:
+  enabled: true
+  username: "admin"
+  password_hash: "pbkdf2:sha256:260000$b6Mbm5UoLr23rgUY$a7381f826d201855020d37757f14d14f23f8c514f8a606d121cccf5942a4ae72"
+#用户：admin，密码：A9v#K2m!Q7x@Lp
+
+
+logging:
+  file: "logs/app.log"
+
+tasks:
+  # 查询类（状态查看）
+  alb_rule_traffic:
+    name: "查看 ALB 转发情况"
+    type: "sh"
+    cmd: "/bin/bash /root/sre-home/blue_green/alb_rule_traffic.sh"
+    confirm: false
+
+  check_middleware_switch:
+    name: "查看中间件切换情况(SQL结果)"
+    type: "sh"
+    cmd: "/bin/bash /root/sre-home/blue_green/check_middleware_switch.sh"
+    confirm: false
+
+  # 中间件切换（sh）
+  middleware_to_az1:
+    name: "中间件切换到 AZ1"
+    type: "sh"
+    cmd: "/bin/bash /root/sre-home/blue_green/middleware_to_az1.sh"
+    confirm: true
+
+  middleware_to_az2:
+    name: "中间件切换到 AZ2"
+    type: "sh"
+    cmd: "/bin/bash /root/sre-home/blue_green/middleware_to_az2.sh"
+    confirm: true
+
+  middleware_restore:
+    name: "中间件恢复双机房"
+    type: "sh"
+    cmd: "/bin/bash /root/sre-home/blue_green/middleware.sh"
+    confirm: true
+
+  # ALB切流（jar）
+  alb_to_az1:
+    name: "ALB切流到 AZ1"
+    type: "jar"
+    cmd: "java -jar /root/sre-home/blue_green/BE-deploy-util.jar 1 0 0"
+    confirm: true
+
+  alb_to_az2:
+    name: "ALB切流到 AZ2"
+    type: "jar"
+    cmd: "java -jar /root/sre-home/blue_green/BE-deploy-util.jar 0 1 0"
+    confirm: true
+
+  alb_restore:
+    name: "ALB恢复双机房"
+    type: "jar"
+    cmd: "java -jar /root/sre-home/blue_green/BE-deploy-util.jar 0 0 1"
+    confirm: true
+
+did:
+  scan_script: "/bin/bash /root/sre-home/blue_green/did-white/did-scan.sh"
+  modify_script: "/bin/bash /root/sre-home/blue_green/did-white/did-modify.sh"
+  priority_script: "/bin/bash /root/sre-home/blue_green/did-white/did-priority.sh"

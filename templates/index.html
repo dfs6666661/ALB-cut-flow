@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>ALB / 中间件切流工具</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      color: #222;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+    .header {
+      background: #1f2937;
+      color: #fff;
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .header .meta {
+      margin-top: 6px;
+      font-size: 13px;
+      opacity: 0.95;
+    }
+    .header .meta a {
+      color: #93c5fd;
+      text-decoration: none;
+    }
+    .header .meta a:hover {
+      text-decoration: underline;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+      border-left: 4px solid #2563eb;
+      padding-left: 8px;
+    }
+
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      background: #2563eb; /* 默认蓝色 = AZ1 */
+      color: #fff;
+    }
+    button:hover { opacity: 0.92; }
+
+    button.warn { background: #d97706; }    /* 橙色 = 双机房 */
+    button.success { background: #059669; } /* 绿色 = AZ2 */
+    button.danger { background: #dc2626; }  /* 备用 */
+
+    .result-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 180px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+      overflow: auto;
+    }
+
+    .status-line {
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .muted {
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .loading {
+      display: inline-block;
+      margin-left: 8px;
+      color: #2563eb;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .form-grid-4 {
+      display: grid;
+      grid-template-columns: 180px 1fr 220px 160px;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 10px;
+      margin-bottom: 10px;
+      max-width: 700px;
+    }
+
+    @media (max-width: 980px) {
+      .form-grid-4,
+      .form-grid-2 {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+      }
+    }
+
+    @media (min-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .full {
+        grid-column: 1 / span 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>ALB / 中间件切流工具</h1>
+      <div class="meta">
+        运行时间：{{ now }} ｜ 机器：{{ machine_name }} ｜ 当前用户：{{ current_user }} ｜ Python 3.11 + venv
+        ｜ <a href="/logout">退出登录</a>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- 状态查看 -->
+      <div class="card full">
+        <h2>状态查看</h2>
+        <div class="muted">用于查看 ALB 转发情况和中间件切换检查结果（含 SQL 执行结果）。</div>
+        <div class="btns" style="margin-top: 10px;">
+          {% for t in query_tasks %}
+            <button onclick="runTask('{{ t.key }}', '{{ t.name }}', false)">{{ t.name }}</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- DID 规则管理 -->
+      <div class="card full">
+        <h2>DID 白名单规则管理（ALB Listener Rule）</h2>
+        <div class="muted">用于扫描规则、修改规则条件（增加/减少header值）以及调整优先级。</div>
+
+        <div class="btns" style="margin-top: 10px;">
+          <button onclick="didScanRules()">扫描当前规则</button>
+        </div>
+
+        <div style="margin-top: 12px; border-top: 1px solid #e5e7eb; padding-top: 12px;">
+          <div class="muted" style="margin-bottom: 8px;">修改规则条件 + 优先级（调用 did-modify.sh）</div>
+
+          <div class="form-grid-4">
+            <select id="didAction">
+              <option value="add">增加条件（add）</option>
+              <option value="delete">减少条件（delete）</option>
+            </select>
+            <input id="didHeaderValue" placeholder="请输入 Header 值（例如 c...）" />
+            <input id="didRuleName" placeholder="规则名称（例如 did-test02）" />
+            <input id="didPriority" type="number" min="1" max="50000" placeholder="优先级（例如 19）" />
+          </div>
+
+          <div class="btns">
+            <button class="warn" onclick="didModifyRule()">执行规则条件变更</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 12px; border-top: 1px solid #e5e7eb; padding-top: 12px;">
+          <div class="muted" style="margin-bottom: 8px;">仅修改优先级（调用 did-priority.sh）</div>
+
+          <div class="form-grid-2">
+            <input id="didPriorityRuleName" placeholder="规则名称（例如 did-test01）" />
+            <input id="didOnlyPriority" type="number" min="1" max="50000" placeholder="新优先级（例如 9）" />
+          </div>
+
+          <div class="btns">
+            <button class="success" onclick="didChangePriority()">执行优先级变更</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中间件切换 -->
+      <div class="card">
+        <h2>中间件切换（sh）</h2>
+        <div class="muted">调用已有 shell 脚本执行中间件切换。</div>
+        <div class="btns" style="margin-top: 10px;">
+          {% for t in middleware_tasks %}
+            {% if 'AZ1' in t.name %}
+              {% set cls = '' %}
+            {% elif 'AZ2' in t.name %}
+              {% set cls = 'success' %}
+            {% elif '恢复' in t.name %}
+              {% set cls = 'warn' %}
+            {% else %}
+              {% set cls = '' %}
+            {% endif %}
+            <button class="{{ cls }}" onclick="runTask('{{ t.key }}', '{{ t.name }}', true)">{{ t.name }}</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ALB 切流 -->
+      <div class="card">
+        <h2>ALB 切流（jar）</h2>
+        <div class="muted">调用 BE-deploy-util.jar 执行 ALB 切流。</div>
+        <div class="btns" style="margin-top: 10px;">
+          {% for t in alb_tasks %}
+            {% if 'AZ1' in t.name %}
+              {% set cls = '' %}
+            {% elif 'AZ2' in t.name %}
+              {% set cls = 'success' %}
+            {% elif '恢复' in t.name %}
+              {% set cls = 'warn' %}
+            {% else %}
+              {% set cls = '' %}
+            {% endif %}
+            <button class="{{ cls }}" onclick="runTask('{{ t.key }}', '{{ t.name }}', true)">{{ t.name }}</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 执行结果 -->
+      <div class="card full">
+        <h2>执行结果回显</h2>
+        <div class="status-line" id="statusLine">等待执行...</div>
+        <div id="resultBox" class="result-box">这里会显示脚本 / jar 的执行结果（stdout / stderr / returncode）</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function postJson(url, data) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+      });
+      return await res.json();
+    }
+
+    function renderResult(title, data) {
+      const statusLine = document.getElementById("statusLine");
+      const resultBox = document.getElementById("resultBox");
+
+      if (!data.ok) {
+        statusLine.textContent = `${title} 失败`;
+        resultBox.textContent = `ERROR: ${data.error || '未知错误'}`;
+        return;
+      }
+
+      const r = data.result;
+      const lines = [];
+      lines.push(`操作: ${title}`);
+      lines.push(`返回码: ${r.returncode}`);
+      lines.push(`耗时: ${r.duration_seconds}s`);
+      if (r.cmd) lines.push(`命令: ${r.cmd}`);
+      lines.push("--------------------------------------------------");
+      lines.push("[STDOUT]");
+      lines.push(r.stdout || "(empty)");
+      lines.push("");
+      lines.push("[STDERR]");
+      lines.push(r.stderr || "(empty)");
+
+      statusLine.textContent = `${title} 完成 ｜ returncode=${r.returncode} ｜ 耗时=${r.duration_seconds}s`;
+      resultBox.textContent = lines.join("\n");
+    }
+
+    async function runTask(taskKey, taskName, needConfirm) {
+      if (needConfirm) {
+        const ok = confirm(`确认执行操作：${taskName} ？\n\n这类按钮属于切流动作，建议先看清楚再按。`);
+        if (!ok) return;
+      }
+
+      const statusLine = document.getElementById("statusLine");
+      const resultBox = document.getElementById("resultBox");
+      statusLine.innerHTML = `正在执行：${taskName} <span class="loading">[RUNNING]</span>`;
+      resultBox.textContent = "命令执行中，请稍候...";
+
+      try {
+        const data = await postJson("/api/run-task", { task_key: taskKey });
+        renderResult(taskName, data);
+      } catch (e) {
+        statusLine.textContent = `执行异常：${taskName}`;
+        resultBox.textContent = `前端请求异常: ${e}`;
+      }
+    }
+
+    async function didScanRules() {
+      const statusLine = document.getElementById("statusLine");
+      const resultBox = document.getElementById("resultBox");
+      statusLine.innerHTML = `正在执行：扫描 DID 规则 <span class="loading">[RUNNING]</span>`;
+      resultBox.textContent = "扫描中，请稍候...";
+
+      try {
+        const data = await postJson("/api/did/scan", {});
+        renderResult("扫描 DID 规则", data);
+      } catch (e) {
+        statusLine.textContent = "扫描 DID 规则 异常";
+        resultBox.textContent = `前端请求异常: ${e}`;
+      }
+    }
+
+    async function didModifyRule() {
+      const action = document.getElementById("didAction").value;
+      const header_value = document.getElementById("didHeaderValue").value.trim();
+      const rule_name = document.getElementById("didRuleName").value.trim();
+      const priority = document.getElementById("didPriority").value.trim();
+
+      if (!header_value || !rule_name || !priority) {
+        alert("请填写完整：Header值、规则名称、优先级");
+        return;
+      }
+
+      const ok = confirm(
+        `确认执行规则条件变更？\n\n动作: ${action}\n规则: ${rule_name}\n优先级: ${priority}\nHeader值: ${header_value}`
+      );
+      if (!ok) return;
+
+      const statusLine = document.getElementById("statusLine");
+      const resultBox = document.getElementById("resultBox");
+      statusLine.innerHTML = `正在执行：规则条件变更 <span class="loading">[RUNNING]</span>`;
+      resultBox.textContent = "执行中，请稍候...";
+
+      try {
+        const data = await postJson("/api/did/modify", {
+          action,
+          header_value,
+          rule_name,
+          priority
+        });
+        renderResult("规则条件变更", data);
+      } catch (e) {
+        statusLine.textContent = "规则条件变更 异常";
+        resultBox.textContent = `前端请求异常: ${e}`;
+      }
+    }
+
+    async function didChangePriority() {
+      const rule_name = document.getElementById("didPriorityRuleName").value.trim();
+      const priority = document.getElementById("didOnlyPriority").value.trim();
+
+      if (!rule_name || !priority) {
+        alert("请填写完整：规则名称、优先级");
+        return;
+      }
+
+      const ok = confirm(`确认执行优先级变更？\n\n规则: ${rule_name}\n新优先级: ${priority}`);
+      if (!ok) return;
+
+      const statusLine = document.getElementById("statusLine");
+      const resultBox = document.getElementById("resultBox");
+      statusLine.innerHTML = `正在执行：优先级变更 <span class="loading">[RUNNING]</span>`;
+      resultBox.textContent = "执行中，请稍候...";
+
+      try {
+        const data = await postJson("/api/did/priority", {
+          rule_name,
+          priority
+        });
+        renderResult("优先级变更", data);
+      } catch (e) {
+        statusLine.textContent = "优先级变更 异常";
+        resultBox.textContent = `前端请求异常: ${e}`;
+      }
+    }
+  </script>
+</body>
+</html>
