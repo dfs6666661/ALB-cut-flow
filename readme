@@ -6,10 +6,10 @@
 #1、具备前端页面
 #2、可以调用机器中已有的sh脚本，并且将sh脚本执行结果返回到前端页面中。
 #3、可以调用机器中已有的jar文件，从而实现ALB切流功能
-#4、已有的第一个sh脚本：alb_rule_traffic.sh，执行之后可以查看alb的流量转发情况，因此需要把脚本的情形结果返回到前端页面
-#5、已有的第二个sh脚本：check_middleware_switch.sh，执行之后可以查看sql的执行结果，因此需要把脚本的情形结果返回到前端页面
+#4、已有的第一个sh脚本：alb_rule_traffic.sh，执行之后可以查看alb的流量转发情况
+#5、已有的第二个sh脚本：check_middleware_switch.sh，执行之后可以查看sql的执行结果
 #6、已有的第三个脚本：middleware_to_az1.sh，将中间件切换到AZ1
 #7、已有的第四个脚本：middleware_to_az2.sh.将中间件切换到AZ2
 #8、已有的第五个脚本：middleware.sh，将中间件恢复双机房
-#9、已有的一个jar文件：BE-deploy-util.jar，当我执行java -jar BE-deploy-util.jar 0 0 1的时候，可以将流量恢复双机房，执行java -jar BE-deploy-util.jar 1 0 0的时候，流量切换到AZ1，执行java -jar BE-deploy-util.jar 0 1 0的时候，流量切换到AZ2，因此需要把执行结果返回到前端页面中。
+#9、已有的一个jar文件：BE-deploy-util.jar，当我执行java -jar BE-deploy-util.jar 0 0 1的时候，可以将流量恢复双机房，执行java -jar BE-deploy-util.jar 1 0 0的时候，流量切换到AZ1，执行java -jar BE-deploy-util.jar 0 1 0的时候，流量切换到AZ2。
 
