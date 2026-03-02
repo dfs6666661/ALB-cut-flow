@@ -32,7 +32,8 @@ class DIDService:
             raise ValueError("规则名称格式非法（仅允许字母/数字/_/-）")
 
     def _validate_header_value(self, header_value: str):
-        if not re.fullmatch(r"[A-Za-z0-9._:-]{1,200}", header_value or ""):
+        # 允许 Base64 常见字符：A-Z a-z 0-9 + / = 以及 - _（有些会用 base64url）
+        if not re.fullmatch(r"[A-Za-z0-9+/=_-]{1,500}", header_value or ""):
             raise ValueError("Header值格式非法")
 
     def _validate_priority(self, priority):
