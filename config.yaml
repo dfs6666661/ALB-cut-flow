@@ -51,19 +51,19 @@ tasks:
   alb_to_az1:
     name: "ALB切流到 AZ1"
     type: "jar"
-    cmd: "java -jar /root/sre-home/blue_green/BE-deploy-util.jar 1 0 0"
+    cmd: "/usr/local/java/jdk1.8.0_411/bin/java -jar /root/sre-home/blue_green/BE-deploy-util.jar 1 0 0"
     confirm: true
 
   alb_to_az2:
     name: "ALB切流到 AZ2"
     type: "jar"
-    cmd: "java -jar /root/sre-home/blue_green/BE-deploy-util.jar 0 1 0"
+    cmd: "/usr/local/java/jdk1.8.0_411/bin/java -jar /root/sre-home/blue_green/BE-deploy-util.jar 0 1 0"
     confirm: true
 
   alb_restore:
     name: "ALB恢复双机房"
     type: "jar"
-    cmd: "java -jar /root/sre-home/blue_green/BE-deploy-util.jar 0 0 1"
+    cmd: "/usr/local/java/jdk1.8.0_411/bin/java -jar /root/sre-home/blue_green/BE-deploy-util.jar 0 0 1"
     confirm: true
 
 did:

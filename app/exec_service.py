@@ -25,7 +25,8 @@ class ExecService:
             cmd_list,
             capture_output=True,
             text=True,
-            timeout=300  # 最多5分钟，防止卡死
+            timeout=300,  # 最多5分钟，防止卡死
+            cwd="/root/sre-home/blue_green"   # ✅ jar 依赖的 config 目录在这里,指定所有sh和jar命令的执行目录
         )
         duration = round(time.time() - start, 2)
 
