@@ -13,3 +13,5 @@
 #8、已有的第五个脚本：middleware.sh，将中间件恢复双机房
 #9、已有的一个jar文件：BE-deploy-util.jar，当我执行java -jar BE-deploy-util.jar 0 0 1的时候，可以将流量恢复双机房，执行java -jar BE-deploy-util.jar 1 0 0的时候，流量切换到AZ1，执行java -jar BE-deploy-util.jar 0 1 0的时候，流量切换到AZ2。
 
+#已更新多用户登录
+#已设置会话过期时间为30min
