@@ -8,7 +8,7 @@ auth:
   enabled: true
   users:
     - username: "admin"
-      password_hash: "pbkdf2:sha256:260000$b6Mbm5UoLr23rgUY$a7381f826d201855020d37757f14d14f23f8c514f8a606d121cccf5942a4ae72"
+      password_hash: "pbkdf2:sha256:260000$W5vpIEUYZpOgY8Yq$9659564d631d8a41c53c41aa3eb0d3cdb913ae8b5f3bd0200de32c88afcebf12"
     - username: "gou.fucai2@iwhalecloud.com"
       password_hash: "pbkdf2:sha256:260000$Jg5rs6OWe4i9PNTL$bdbcde3af297a80e7d08e372932fa08844ea251b36eeb1989ceca7d71d2e39d8"
     - username: "su.tai@iwhalecloud.com"
@@ -24,7 +24,7 @@ auth:
     - username: "sun.hao282@iwhalecloud.com"
       password_hash: "pbkdf2:sha256:260000$4dNecc7AGPIRe3lu$6ff9a0fde32a973116dc5f61280bcb38608b4772c03bb7d3a5d3f91ec9b895e1"
 
-# 用户：admin，密码：A9v#K2m!Q7x@Lp
+# 用户：admin，密码：Q7@vL2!mN9#tR5$
 # 用户：gou.fucai2@iwhalecloud.com，密码：R7@kP2!mX9#q
 # 用户：su.tai@iwhalecloud.com，密码：N4$wT8@cL1!v
 # 用户：jiao.yanxiang@iwhalecloud.com，密码：Q9#eH3!rY7@u

@@ -11,7 +11,7 @@ from werkzeug.security import check_password_hash
 from app.config import load_config
 from app.exec_service import ExecService
 from app.did_service import DIDService
-
+from datetime import timedelta
 
 def setup_logging(app, log_file):
     log_path = Path(log_file)
@@ -39,6 +39,9 @@ def create_app():
     cfg = load_config()
     app = Flask(__name__, template_folder="../templates")
     app.config["SECRET_KEY"] = cfg["app"]["secret_key"]
+    #设置session过期时间为30分钟
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
+
 
     setup_logging(app, cfg.get("logging", {}).get("file", "logs/app.log"))
 
@@ -110,6 +113,8 @@ def create_app():
         password = request.form.get("password") or ""
 
         if verify_password(username, password):
+            session.clear()
+            session.permanent = True          # ✅ 让 30分钟过期生效
             session["logged_in"] = True
             session["username"] = username
             app.logger.info("login success user=%s", username)
