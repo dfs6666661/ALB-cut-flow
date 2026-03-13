@@ -53,9 +53,13 @@ def create_app():
     # 登录配置
     auth_cfg = cfg.get("auth", {})
     auth_enabled = auth_cfg.get("enabled", False)
-    auth_username = auth_cfg.get("username", "admin")
-    auth_password = auth_cfg.get("password")  # 明文兼容（不推荐）
-    auth_password_hash = auth_cfg.get("password_hash")  # 推荐
+    # ✅ 多用户：users 列表
+    users = auth_cfg.get("users", []) or []
+    # 做成字典：username -> password_hash
+    user_map = {u.get("username"): u.get("password_hash") for u in users if u.get("username") and u.get("password_hash")}
+    #友好校验
+    if auth_enabled and not user_map:
+        raise ValueError("auth.enabled=true 但未配置 auth.users 或 users 为空")
 
     def is_logged_in():
         if not auth_enabled:
@@ -72,10 +76,11 @@ def create_app():
             return func(*args, **kwargs)
         return wrapper
 
-    def verify_password(input_password: str) -> bool:
-        if auth_password_hash:
-            return check_password_hash(auth_password_hash, input_password)
-        return auth_password is not None and input_password == auth_password
+    def verify_password(username: str, input_password: str) -> bool:
+        pw_hash = user_map.get(username)
+        if not pw_hash:
+            return False
+        return check_password_hash(pw_hash, input_password)
 
     # 前端按钮分组
     query_tasks = [
@@ -104,7 +109,7 @@ def create_app():
         username = (request.form.get("username") or "").strip()
         password = request.form.get("password") or ""
 
-        if username == auth_username and verify_password(password):
+        if verify_password(username, password):
             session["logged_in"] = True
             session["username"] = username
             app.logger.info("login success user=%s", username)

@@ -6,9 +6,32 @@ app:
 
 auth:
   enabled: true
-  username: "admin"
-  password_hash: "pbkdf2:sha256:260000$b6Mbm5UoLr23rgUY$a7381f826d201855020d37757f14d14f23f8c514f8a606d121cccf5942a4ae72"
-#用户：admin，密码：A9v#K2m!Q7x@Lp
+  users:
+    - username: "admin"
+      password_hash: "pbkdf2:sha256:260000$b6Mbm5UoLr23rgUY$a7381f826d201855020d37757f14d14f23f8c514f8a606d121cccf5942a4ae72"
+    - username: "gou.fucai2@iwhalecloud.com"
+      password_hash: "pbkdf2:sha256:260000$Jg5rs6OWe4i9PNTL$bdbcde3af297a80e7d08e372932fa08844ea251b36eeb1989ceca7d71d2e39d8"
+    - username: "su.tai@iwhalecloud.com"
+      password_hash: "pbkdf2:sha256:260000$dC98Lj5ppyuEfH5Q$6448860961eff23d6cf67519497fd9e331600bc274a62228ba97364b705adee4"
+    - username: "jiao.yanxiang@iwhalecloud.com"
+      password_hash: "pbkdf2:sha256:260000$5C1BUZQaSk6qTAc8$01e18419f1fbcd8f30573b2ac5ee683f9129578e5ba7eceeee6045da0cf7e6f4"
+    - username: "yao.guochang@iwhalecloud.com"
+      password_hash: "pbkdf2:sha256:260000$Xmfe84HqFK3B2E0u$cd689f473d9dd921f780233d2b6d101b098c7dab67b112d9472e0dd9e7f79fa0"
+    - username: "xie.zhou2@iwhalecloud.com"
+      password_hash: "pbkdf2:sha256:260000$ScpBxzzK1g4xtpr2$c27c936f90d7ae64d92ff0de013e48ee210a2f4b7529325b9682d21f83f5298f"
+    - username: "duan.fusen@iwhalecloud.com"
+      password_hash: "pbkdf2:sha256:260000$6HoONooPpjxb8sTO$c161dbc4d52b36986f72279fd70965906db1fcb78c4493a487cbdd68e50510a8"
+    - username: "sun.hao282@iwhalecloud.com"
+      password_hash: "pbkdf2:sha256:260000$4dNecc7AGPIRe3lu$6ff9a0fde32a973116dc5f61280bcb38608b4772c03bb7d3a5d3f91ec9b895e1"
+
+# 用户：admin，密码：A9v#K2m!Q7x@Lp
+# 用户：gou.fucai2@iwhalecloud.com，密码：R7@kP2!mX9#q
+# 用户：su.tai@iwhalecloud.com，密码：N4$wT8@cL1!v
+# 用户：jiao.yanxiang@iwhalecloud.com，密码：Q9#eH3!rY7@u
+# 用户：yao.guochang@iwhalecloud.com，密码：M2@zK8#pD5!n
+# 用户：xie.zhou2@iwhalecloud.com，密码：V6!tR1@xJ9#b
+# 用户：duan.fusen@iwhalecloud.com，密码：C3#mW7!qF2@k
+# 用户：sun.hao282@iwhalecloud.com，密码：P8@nL4#sT6!y
 
 
 logging:
