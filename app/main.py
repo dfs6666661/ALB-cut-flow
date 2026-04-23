@@ -100,6 +100,10 @@ def create_app():
         {"key": "alb_to_az2", **tasks_cfg.get("alb_to_az2", {})},
         {"key": "alb_restore", **tasks_cfg.get("alb_restore", {})},
     ]
+    middleware_ip_tasks = [
+        {"key": "middleware_ip_check", **tasks_cfg.get("middleware_ip_check", {})},
+        {"key": "middleware_ip_update", **tasks_cfg.get("middleware_ip_update", {})},
+    ]
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
@@ -140,6 +144,7 @@ def create_app():
         return render_template(
             "index.html",
             query_tasks=query_tasks,
+            middleware_ip_tasks=middleware_ip_tasks,
             middleware_tasks=middleware_tasks,
             alb_tasks=alb_tasks,
             now=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

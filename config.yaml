@@ -88,6 +88,21 @@ tasks:
     type: "jar"
     cmd: "/usr/local/java/jdk1.8.0_411/bin/java -jar /root/sre-home/blue_green/BE-deploy-util.jar 0 0 1"
     confirm: true
+  
+  #中间件ip检查和更新脚本
+  middleware_ip_check:
+    name: "检查中间件脚本IP"
+    type: "sh"
+    cwd: "/root/sre-home/blue_green"
+    cmd: "/bin/bash /root/sre-home/blue_green/check_middleware_ips.sh"
+    confirm: false
+
+  middleware_ip_update:
+    name: "更新中间件脚本IP"
+    type: "sh"
+    cwd: "/root/sre-home/blue_green"
+    cmd: "/bin/bash /root/sre-home/blue_green/update_middleware_ips.sh"
+    confirm: true
 
 did:
   scan_script: "/bin/bash /root/sre-home/blue_green/did-white/did-scan.sh"

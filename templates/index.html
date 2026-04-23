@@ -177,6 +177,25 @@
           {% endfor %}
         </div>
       </div>
+      <!-- 中间件脚本ip管理 -->
+      <div class="card full">
+        <h2>中间件脚本 IP 管理</h2>
+        <div class="muted">用于检查 middle 脚本中的 IP 是否与当前 Pod IP 一致，并在需要时一键更新脚本中的 IP。</div>
+        <div class="btns" style="margin-top: 10px;">
+          {% for t in middleware_ip_tasks %}
+            {% if '检查' in t.name %}
+              {% set cls = '' %}
+            {% elif '更新' in t.name %}
+              {% set cls = 'warn' %}
+            {% else %}
+              {% set cls = '' %}
+            {% endif %}
+            <button class="{{ cls }}" onclick="runTask('{{ t.key }}', '{{ t.name }}', {{ 'true' if t.confirm else 'false' }})">
+              {{ t.name }}
+            </button>
+          {% endfor %}
+        </div>
+      </div>
 
       <!-- DID 规则管理 -->
       <div class="card full">
